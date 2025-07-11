@@ -25,7 +25,27 @@ function LoginPage(props) {
 
             // If login successful, redirect to MainPage
             if (response.status === 200) {
-                navigate('/main');
+
+   const user = response.data.user;
+
+      // Optional: Log individual values
+      console.log("User ID:", user.id);
+      console.log("Username:", user.username);
+      console.log("Role:", user.role);
+      console.log("email:", user.emailid);
+
+
+      localStorage.setItem('user', JSON.stringify(user));
+
+      if (user.role === 'user') {
+        navigate('/userpage');
+      } else if (user.role === 'admin') {
+        navigate('/adminpage');
+      } else {
+        setErrorMessage('Unauthorized role.');
+      }
+
+
             }
         } catch (error) {
             console.error('Error:', error);

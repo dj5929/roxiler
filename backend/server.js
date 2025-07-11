@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const cors = require('cors');
 
 const db = mysql.createPool({
-  connectionLimit: 10, // Adjust as needed
+  connectionLimit: 100,  // Adjust as needed
   host: 'localhost',
   user: 'root',
   password: '',
@@ -17,13 +17,14 @@ app.use(express.json());
 app.use(cors());
 
 // Test API to verify MySQL connection
-app.get('/api/test', (req, res) => {
+app.get('/test', (req, res) => {
   db.query('SELECT NOW() AS currentTime', (err, results) => {
     if (err) {
       console.error('Error executing query:', err);
       return res.status(500).json({ error: 'Database query failed' });
     }
     res.json({ success: true, time: results[0].currentTime });
+      console.error('success:');
   });
 });
 
@@ -35,25 +36,28 @@ app.post('/login', (req, res) => {
     if (err) {
       res.status(500).json({ message: 'An error occurred while processing your request.' });
     } else {
+          const user = result[0];
           if (result.length > 0) {
-             const user = result[0];
-             const userName = user.username;           // assuming you have an `id` column
-             const userRoll = user.userroll;       // assuming you have a `roll` column
-             const userEmailid = user.emailid;   // example            req.session.userId = result[0].id;
-            res.status(200).json({ message: 'Login successful' });
+           res.status(200).json({ message: 'Login successful',               
+            user: {
+                       id: user.userid,
+                      username: user.username,
+                    role: user.userrole,
+                    emailid:user.emailid
+                   }
+              });
       } else {
         res.status(401).json({ message: 'Login failed. Invalid username or password.' });
-        localStorage.setItem('userRoll', "");  // or sessionStorage
       }
     }
   });
 });
 
 app.post('/register', (req, res) => {
-  const { username, password,address,emailid,roll } = req.body;
+  const { username, password,address,emailid,userrole } = req.body;
 
-  const sql = 'insert into Users(username,password,address,emailid,userroll) values(?,?,?,?,?)';
-  db.query(sql, [username, password, address, emailid, roll], (err, result) => {
+  const sql = 'insert into Users(username,password,address,emailid,userrole) values(?,?,?,?,?)';
+  db.query(sql, [username, password, address, emailid, userrole], (err, result) => {
     if (err) {
       res.status(500).json({ message: 'An error occurred while processing your request.' });
     } else {

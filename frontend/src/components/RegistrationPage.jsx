@@ -11,27 +11,54 @@ function RegistrationPage(props) {
     const [address, setAddress] = useState('');
     const [emailid, setEmailid] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const roll = 'user';
+    const userrole = 'user';
     //const [roll, setRoll] = useState('');
    
     // Initialize useNavigate hook for navigation
     const navigate = useNavigate();
 
+    
     // Function to handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             // Clear previous error messages
             setErrorMessage('');
+            // ✅ Local Validation
+            const errors = [];
 
+            if (username.length < 20 || username.length > 60) {
+    errors.push('Username must be between 20 and 60 characters.');
+  }
+
+  if (address.length > 400) {
+    errors.push('Address must be 400 characters or less.');
+  }
+
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,16}$/;
+  if (!passwordRegex.test(password)) {
+    errors.push('Password must be 8-16 characters, include at least one uppercase letter and one special character.');
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(emailid)) {
+    errors.push('Invalid email format.');
+  }
+
+  if (errors.length > 0) {
+    setErrorMessage(errors.join('\n'));
+    return; // Stop if validation fails
+  }
             // Send login request to server
-            const response = await axios.post('http://localhost:3000/register', { username, password,address,emailid ,roll});
+            const response = await axios.post('http://localhost:3000/register', { username, password,address,emailid ,userrole});
 
             // If login successful, redirect to MainPage
             if (response.status === 200) {
-                navigate('/main');
+               alert("Registration Success. Please login")
+                navigate('/login');
             }
         } catch (error) {
+          
             console.error('Error:', error);
 
             // If login failed, display error message
